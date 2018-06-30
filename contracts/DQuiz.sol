@@ -40,7 +40,7 @@ contract DQuiz {
 
   bytes32 public lastByte32;
 
-  constructor() public {
+  constructor () public {
 
   }
 
@@ -91,10 +91,13 @@ contract DQuiz {
   }
 
   function revealAnswer(string quizName, uint8 answerKey) public {
+    require(answerKey != 0);
     bytes32 key = stringToByte32(quizName);
     require(quizList[key].host == msg.sender);
 
     uint8 currentQuestionIndex = quizList[key].currentQuestionIndex;
+    
+    require(quizList[key].questionAnswerList[currentQuestionIndex - 1].answerKey == 0);
 
     quizList[key].questionAnswerList[currentQuestionIndex - 1].answerKey = answerKey;
   }
@@ -114,26 +117,28 @@ contract DQuiz {
   }
 
   function submitAnswer(string quizName, uint8 answerKey) public {
+    require(answerKey != 0);
 
     bytes32 key = stringToByte32(quizName);
     require(quizList[key].participantList[msg.sender].isEntered);
     uint8 currentQuestionIndex = quizList[key].currentQuestionIndex;
     
     if(currentQuestionIndex != 1){
-      require(quizList[key].participantList[msg.sender].answerList[currentQuestionIndex - 2] != 0);
+      require(quizList[key].participantList[msg.sender].answerList[currentQuestionIndex - 2] != 0); // This is to check if pcpnt answered prvious question
     }
     
     require(quizList[key].participantList[msg.sender].isEligible);
 
-    require(quizList[key].questionAnswerList[currentQuestionIndex - 1].isQuestionOut);
+    require(quizList[key].questionAnswerList[currentQuestionIndex - 1].isQuestionOut); // So that pcpnt can answer only if question is out
+    require(quizList[key].participantList[msg.sender].answerList[currentQuestionIndex - 1] == 0); // So that pcpnt won't answer it twice
 
     quizList[key].participantList[msg.sender].answerList[currentQuestionIndex - 1] = answerKey;
   }
 
   function validateRecentAnswer(string quizName) public {
-
     bytes32 key = stringToByte32(quizName);
     require(quizList[key].participantList[msg.sender].isEntered);
+    require(quizList[key].participantList[msg.sender].isEligible);
 
     uint8 currentQuestionIndex = quizList[key].currentQuestionIndex;
 
@@ -147,9 +152,9 @@ contract DQuiz {
     }
   }
 
-  function getQuizNameByte32(string quizName) public view returns (string name,
-    string description,
-    address host) {
+  function getQuizNameByte32(string quizName) public view returns (string,
+    string,
+    address ) {
 
     bytes32 key = keccak256(abi.encodePacked(quizName));
     return(quizList[key].name, quizList[key].description, quizList[key].host);
