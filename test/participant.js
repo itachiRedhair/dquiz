@@ -318,3 +318,94 @@ contract('DQuiz: Pariticipant finishing the quiz', function(accounts) {
     expect(afterBalance.toNumber()).to.be.above(prevBalance.toNumber());
   });
 });
+
+contract('DQuiz: Pariticipant getting current question', function(accounts) {
+  const HOST_ADDRESS = accounts[0];
+  const PARTICIPANT_ONE = accounts[1];
+  const PARTICIPANT_TWO = accounts[2];
+  const PARTICIPANT_THREE = accounts[3];
+  let dQuizInstance;
+
+  beforeEach(async () => {
+    dQuizInstance = await DQuiz.new();
+
+    await dQuizInstance.createQuiz(
+      QUIZ_NAME,
+      QUIZ_DESCRIPTION,
+      ENTER_FEES,
+      START_TIME, // time for Sunday, July 1, 2018 10:00:00 AM GMT+05:30
+      TIME_TO_ANSWER,
+      TIME_TO_FREEZE_ANSWER,
+      NUMBER_OF_QUESTION,
+      { from: HOST_ADDRESS },
+    );
+
+    // -> Only Participant One is entering the quiz
+    await dQuizInstance.enterQuiz(QUIZ_NAME, {
+      from: PARTICIPANT_ONE,
+      value: ENTER_FEES,
+    });
+
+    // Question 1
+    await dQuizInstance.addQuestion(QUIZ_NAME, QUESTION_ONE, ANSWER_ONE_OPTIONS);
+  });
+
+  it(`should let ENTERED participant get first question and it's options`, async () => {
+    const returnedValue = await dQuizInstance.getCurrentQuestion.call(QUIZ_NAME, {
+      from: PARTICIPANT_ONE,
+    });
+    expect(returnedValue[0]).to.equal(QUESTION_ONE);
+    expect(returnedValue[1]).to.equal(ANSWER_ONE_OPTIONS);
+  });
+
+  it(`should NOT let NOT ENTERED participant get first question and it's options`, async () => {
+    expect(
+      dQuizInstance.getCurrentQuestion.call(QUIZ_NAME, {
+        from: PARTICIPANT_TWO,
+      }),
+    ).to.be.rejected;
+  });
+
+  it(`should let ENTERED participant get current question and it's options if he/she has validated the prev with right answer`, async () => {
+    await dQuizInstance.submitAnswer(QUIZ_NAME, CORRECT_ANSWER_ONE, { from: PARTICIPANT_ONE });
+    await dQuizInstance.revealAnswer(QUIZ_NAME, CORRECT_ANSWER_ONE);
+    await dQuizInstance.validateRecentAnswer(QUIZ_NAME, {
+      from: PARTICIPANT_ONE,
+    });
+    await dQuizInstance.addQuestion(QUIZ_NAME, QUESTION_TWO, ANSWER_TWO_OPTIONS);
+
+    const returnedValue = await dQuizInstance.getCurrentQuestion.call(QUIZ_NAME, {
+      from: PARTICIPANT_ONE,
+    });
+    expect(returnedValue[0]).to.equal(QUESTION_TWO);
+    expect(returnedValue[1]).to.equal(ANSWER_TWO_OPTIONS);
+  });
+
+  it(`should NOT let ENTERED participant get current question and it's options if he/she has validated the prev with wrong answer`, async () => {
+    await dQuizInstance.submitAnswer(QUIZ_NAME, 2, { from: PARTICIPANT_ONE }); // -> Participant One answered with the wrong answer
+    await dQuizInstance.revealAnswer(QUIZ_NAME, CORRECT_ANSWER_ONE);
+    await dQuizInstance.validateRecentAnswer(QUIZ_NAME, {
+      from: PARTICIPANT_ONE,
+    });
+    await dQuizInstance.addQuestion(QUIZ_NAME, QUESTION_TWO, ANSWER_TWO_OPTIONS);
+
+    await expect(
+      dQuizInstance.getCurrentQuestion.call(QUIZ_NAME, {
+        from: PARTICIPANT_ONE,
+      }),
+    ).to.be.rejected;
+  });
+
+  it(`should NOT let ENTERED participant get current question and it's options if he/she has NOT validated the prev`, async () => {
+    await dQuizInstance.submitAnswer(QUIZ_NAME, CORRECT_ANSWER_ONE, { from: PARTICIPANT_ONE }); // -> Participant One answered with the right answer
+    await dQuizInstance.revealAnswer(QUIZ_NAME, CORRECT_ANSWER_ONE);
+    // -> But he/she didn't validated it
+    await dQuizInstance.addQuestion(QUIZ_NAME, QUESTION_TWO, ANSWER_TWO_OPTIONS);
+
+    await expect(
+      dQuizInstance.getCurrentQuestion.call(QUIZ_NAME, {
+        from: PARTICIPANT_ONE,
+      }),
+    ).to.be.rejected;
+  });
+});

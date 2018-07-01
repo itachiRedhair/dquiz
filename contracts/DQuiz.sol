@@ -176,6 +176,24 @@ contract DQuiz {
     return(quizList[key].name, quizList[key].description, quizList[key].host);
   }
 
+  function getCurrentQuestion(string quizName) public view returns(string,
+  string ) {
+    bytes32 key = stringToByte32(quizName);
+    require(quizList[key].participantList[msg.sender].isEntered);
+    require(quizList[key].participantList[msg.sender].isEligible);
+    
+    uint8 currentQuestionIndex = quizList[key].currentQuestionIndex;
+
+    if(currentQuestionIndex != 1) {
+      require(quizList[key].participantList[msg.sender].answerList[currentQuestionIndex - 2] == 9); // This is to check if pcpnt validated prev answer
+    }
+    
+    return(
+      quizList[key].questionAnswerList[currentQuestionIndex - 1].question.questionString,
+      quizList[key].questionAnswerList[currentQuestionIndex - 1].question.options
+    );
+  }
+
   function amIEligible(string quizName) public view returns(bool) {
     bytes32 key = stringToByte32(quizName);
     require(quizList[key].participantList[msg.sender].isEntered);
