@@ -76,6 +76,14 @@ contract DQuiz {
     require(quizList[key].currentQuestionIndex < quizList[key].totalQuestions);
     require(msg.sender == quizList[key].host);
 
+    // TODO: Write test cases for following block
+    if(quizList[key].currentQuestionIndex != 0){
+      uint8 correctAnswer = quizList[key].questionAnswerList[
+        quizList[key].currentQuestionIndex - 1 ]
+        .answerKey;
+      require(correctAnswer != 0); // -> This is to check if host had added the answer for prev question, then only let him proceed
+    }
+   
     quizList[key].currentQuestionIndex++;
 
     Question memory newQuestion = Question({
@@ -98,13 +106,14 @@ contract DQuiz {
     require(quizList[key].host == msg.sender);
 
     uint8 currentQuestionIndex = quizList[key].currentQuestionIndex;
-    
-    require(quizList[key].questionAnswerList[currentQuestionIndex - 1].answerKey == 0);
+
+    // TODO: Write test case for below line
+    require(quizList[key].questionAnswerList[currentQuestionIndex - 1].answerKey == 0); // -> This is to see if host don't reveal answer twice 
 
     quizList[key].questionAnswerList[currentQuestionIndex - 1].answerKey = answerKey;
   }
 
-// Pariticipant related functions
+// Participant related functions
 
   function enterQuiz(string quizName) public payable {
 
@@ -147,6 +156,8 @@ contract DQuiz {
     uint8 myAnswer = quizList[key].participantList[msg.sender].answerList[currentQuestionIndex - 1];
     uint8 correctAnswer = quizList[key].questionAnswerList[currentQuestionIndex - 1].answerKey;
 
+    require(correctAnswer != 0); // This means either host has not revealed the answer or he is just goofing around
+
     if(myAnswer == correctAnswer) {
       quizList[key].participantList[msg.sender].isEligible = true;
       quizList[key].participantList[msg.sender].answerList[currentQuestionIndex - 1] = 9; // 9 is for validated answer
@@ -168,16 +179,54 @@ contract DQuiz {
     // delete quizList[key].participantList[msg.sender];
   }
 
-  function getQuizNameByte32(string quizName) public view returns (string,
-    string,
-    address ) {
+  function amIEligible(string quizName) public view returns(bool) {
+    bytes32 key = stringToByte32(quizName);
+    require(quizList[key].participantList[msg.sender].isEntered);
 
-    bytes32 key = keccak256(abi.encodePacked(quizName));
-    return(quizList[key].name, quizList[key].description, quizList[key].host);
+    return quizList[key].participantList[msg.sender].isEligible;
+  }
+
+// General Methods can be called by anyone irrespective of host or participants or anyone
+  function getQuizBasicInfo(string quizName) public view returns ( string,
+    string,
+    uint,
+    uint,
+    uint,
+    uint,
+    address,
+    uint8 ) {
+
+      bytes32 key = stringToByte32(quizName);
+      QuizData memory quiz = quizList[key];
+
+      return(quiz.name,
+      quiz.description,
+      quiz.startTime,
+      quiz.timeToAnswer,
+      quiz.timeToFreezeAnswer,
+      quiz.enterFees,
+      quiz.host,
+      quiz.totalQuestions);
+  }
+
+  function getQuizDynamicInfo(string quizName) public view returns ( uint,
+  uint ) {
+
+    bytes32 key = stringToByte32(quizName);
+    QuizData memory quiz = quizList[key];
+
+    return(quiz.totalParticipants,
+    quiz.totalReward);
+  }
+
+  function getQuizWinCount(string quizName) public view returns (uint) {
+    bytes32 key = stringToByte32(quizName);
+    return(quizList[key].totalWinCount);
   }
 
   function getCurrentQuestion(string quizName) public view returns(string,
-  string ) {
+  string,
+  uint8 ) {
     bytes32 key = stringToByte32(quizName);
     require(quizList[key].participantList[msg.sender].isEntered);
     require(quizList[key].participantList[msg.sender].isEligible);
@@ -190,17 +239,12 @@ contract DQuiz {
     
     return(
       quizList[key].questionAnswerList[currentQuestionIndex - 1].question.questionString,
-      quizList[key].questionAnswerList[currentQuestionIndex - 1].question.options
+      quizList[key].questionAnswerList[currentQuestionIndex - 1].question.options,
+      currentQuestionIndex
     );
-  }
+  }  
 
-  function amIEligible(string quizName) public view returns(bool) {
-    bytes32 key = stringToByte32(quizName);
-    require(quizList[key].participantList[msg.sender].isEntered);
-
-    return quizList[key].participantList[msg.sender].isEligible;
-  }
-
+// Utility Methods (Mostly for internal purpose)
   function stringToByte32(string s) internal pure returns(bytes32){
 
     bytes32 converted = keccak256(abi.encodePacked(s));

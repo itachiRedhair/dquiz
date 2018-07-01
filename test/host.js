@@ -33,7 +33,7 @@ contract('DQuiz', function(accounts) {
       { from: HOST_ADDRESS },
     );
 
-    const returnedValue = await dQuizInstance.getQuizNameByte32.call(QUIZ_NAME, {
+    const returnedValue = await dQuizInstance.getQuizBasicInfo.call(QUIZ_NAME, {
       from: HOST_ADDRESS,
     });
     expect(returnedValue[0]).to.equal(QUIZ_NAME);

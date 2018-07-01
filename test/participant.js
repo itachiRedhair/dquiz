@@ -299,7 +299,7 @@ contract('DQuiz: Pariticipant finishing the quiz', function(accounts) {
       .fulfilled;
   });
 
-  it('should add ether in participants balance', async () => {
+  it('should add ether in participants balance and get the total win count', async () => {
     // Question five
     await dQuizInstance.addQuestion(QUIZ_NAME, QUESTION_FIVE, ANSWER_FIVE_OPTIONS);
     await dQuizInstance.submitAnswer(QUIZ_NAME, CORRECT_ANSWER_FIVE, { from: PARTICIPANT_TWO });
@@ -316,6 +316,9 @@ contract('DQuiz: Pariticipant finishing the quiz', function(accounts) {
     const afterBalance = await web3.eth.getBalance(PARTICIPANT_TWO);
 
     expect(afterBalance.toNumber()).to.be.above(prevBalance.toNumber());
+
+    const returnedValue = await dQuizInstance.getQuizWinCount.call(QUIZ_NAME);
+    expect(returnedValue.toNumber()).to.equal(2);
   });
 });
 
@@ -323,7 +326,6 @@ contract('DQuiz: Pariticipant getting current question', function(accounts) {
   const HOST_ADDRESS = accounts[0];
   const PARTICIPANT_ONE = accounts[1];
   const PARTICIPANT_TWO = accounts[2];
-  const PARTICIPANT_THREE = accounts[3];
   let dQuizInstance;
 
   beforeEach(async () => {
