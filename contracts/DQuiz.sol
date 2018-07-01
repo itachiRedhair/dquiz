@@ -18,6 +18,7 @@ contract DQuiz {
     bool isEntered;
     mapping(uint8 => uint8) answerList; // key is questionIndex and value is answerKey
     bool isEligible;
+    bool isWon;
   }
 
   struct QuizData {
@@ -33,6 +34,7 @@ contract DQuiz {
     QuestionAnswer[] questionAnswerList;
     mapping(address => Participant) participantList;
     uint totalParticipants;
+    uint totalWinCount;
     uint totalReward;
   }
 
@@ -91,7 +93,7 @@ contract DQuiz {
   }
 
   function revealAnswer(string quizName, uint8 answerKey) public {
-    require(answerKey != 0);
+    require(answerKey >= 1 && answerKey <=4 ); // answerKey should be only between 1 and 4.
     bytes32 key = stringToByte32(quizName);
     require(quizList[key].host == msg.sender);
 
@@ -117,14 +119,14 @@ contract DQuiz {
   }
 
   function submitAnswer(string quizName, uint8 answerKey) public {
-    require(answerKey != 0);
+    require(answerKey >= 1 && answerKey <=4 ); // answerKey should be only between 1 and 4.
 
     bytes32 key = stringToByte32(quizName);
     require(quizList[key].participantList[msg.sender].isEntered);
     uint8 currentQuestionIndex = quizList[key].currentQuestionIndex;
     
     if(currentQuestionIndex != 1){
-      require(quizList[key].participantList[msg.sender].answerList[currentQuestionIndex - 2] != 0); // This is to check if pcpnt answered prvious question
+      require(quizList[key].participantList[msg.sender].answerList[currentQuestionIndex - 2] == 9); // This is to check if pcpnt validated prev answer
     }
     
     require(quizList[key].participantList[msg.sender].isEligible);
@@ -142,14 +144,28 @@ contract DQuiz {
 
     uint8 currentQuestionIndex = quizList[key].currentQuestionIndex;
 
-    uint8 myAnswer = quizList[key].participantList[msg.sender].answerList[currentQuestionIndex -1 ];
+    uint8 myAnswer = quizList[key].participantList[msg.sender].answerList[currentQuestionIndex - 1];
     uint8 correctAnswer = quizList[key].questionAnswerList[currentQuestionIndex - 1].answerKey;
 
     if(myAnswer == correctAnswer) {
       quizList[key].participantList[msg.sender].isEligible = true;
+      quizList[key].participantList[msg.sender].answerList[currentQuestionIndex - 1] = 9; // 9 is for validated answer
+      if(currentQuestionIndex == quizList[key].totalQuestions){
+        quizList[key].participantList[msg.sender].isWon = true;
+        quizList[key].totalWinCount++;
+      }
     } else {
       quizList[key].participantList[msg.sender].isEligible = false;        
     }
+  }
+
+  function getMoneyIfWon(string quizName) public returns(uint256){
+    bytes32 key = stringToByte32(quizName);
+    require(quizList[key].participantList[msg.sender].isWon);
+    uint myReward = quizList[key].totalReward / quizList[key].totalWinCount;
+    msg.sender.transfer(myReward);
+    return myReward;
+    // delete quizList[key].participantList[msg.sender];
   }
 
   function getQuizNameByte32(string quizName) public view returns (string,
