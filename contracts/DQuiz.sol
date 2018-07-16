@@ -69,14 +69,13 @@ contract DQuiz {
 
 // Host related functions
 
-  function addQuestion(string quizName, 
+ function addQuestion(string quizName, 
   string questionString, 
   string options) public {
     bytes32 key = stringToByte32(quizName);
     require(quizList[key].currentQuestionIndex < quizList[key].totalQuestions);
     require(msg.sender == quizList[key].host);
 
-    // TODO: Write test cases for following block
     if(quizList[key].currentQuestionIndex != 0){
       uint8 correctAnswer = quizList[key].questionAnswerList[
         quizList[key].currentQuestionIndex - 1 ]
@@ -107,7 +106,6 @@ contract DQuiz {
 
     uint8 currentQuestionIndex = quizList[key].currentQuestionIndex;
 
-    // TODO: Write test case for below line
     require(quizList[key].questionAnswerList[currentQuestionIndex - 1].answerKey == 0); // -> This is to see if host don't reveal answer twice 
 
     quizList[key].questionAnswerList[currentQuestionIndex - 1].answerKey = answerKey;

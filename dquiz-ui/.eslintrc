@@ -1,0 +1,7 @@
+{
+  "extends": ["airbnb"],
+  "rules": {
+    "implicit-arrow-linebreak":"off" ,
+    "react/jsx-one-expression-per-line":"off"
+  }
+}

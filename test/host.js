@@ -15,6 +15,9 @@ const NUMBER_OF_QUESTION = 5;
 const QUESTION_ONE = 'Question ONE?',
   ANSWER_ONE_OPTIONS = 'answer1_1,answer1_2,answer1_3,answer1_4',
   CORRECT_ANSWER_ONE = 1;
+const QUESTION_TWO = 'Question TWO?',
+  ANSWER_TWO_OPTIONS = 'answer2_1,answer2_2,answer2_3,answer2_4',
+  CORRECT_ANSWER_TWO = 1;
 
 contract('DQuiz', function(accounts) {
   const HOST_ADDRESS = accounts[0];
@@ -67,5 +70,17 @@ contract('DQuiz: Host revealing answer', function(accounts) {
 
   it('should reveal answer only if answerKey provided by host is OTHER THAN 0', async () => {
     await expect(dQuizInstance.revealAnswer(QUIZ_NAME, 2)).to.be.fulfilled;
+  });
+
+  it(`should NOT let reveal answer he did not reveal for the prev question if prev que is not the first`, async () => {
+    // -> host didn't reveal the answer for prev question and went for adding the next one
+    await expect(dQuizInstance.addQuestion(QUIZ_NAME, QUESTION_TWO, ANSWER_TWO_OPTIONS)).to.be
+      .rejected;
+  });
+
+  it(`should NOT let reveal answer twice for the same question`, async () => {
+    await dQuizInstance.revealAnswer(QUIZ_NAME, CORRECT_ANSWER_ONE);
+
+    await expect(dQuizInstance.revealAnswer(QUIZ_NAME, 3)).to.be.rejected;
   });
 });
