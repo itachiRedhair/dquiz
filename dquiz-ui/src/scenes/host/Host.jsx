@@ -8,6 +8,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { withStyles } from '@material-ui/core/styles';
 
 import BackButton from '../../components/BackButton';
+import QuizTable from '../../components/QuizTable';
 import styles from './HostStyle';
 
 const Host = ({ classes }) => {
@@ -21,6 +22,7 @@ const Host = ({ classes }) => {
           Create New Quiz <FontAwesomeIcon icon={faPlus} />
         </Button>
       </div>
+      <QuizTable />
     </React.Fragment>
   );
 };
