@@ -1,5 +1,5 @@
 const styles = () => ({
-  IAmTextContainer: {
+  iAmTextContainer: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',

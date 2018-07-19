@@ -11,7 +11,7 @@ const Home = ({ classes }) => (
   <div>
     <Grid container spacing={32}>
       <Grid item xs={6}>
-        <div className={classes.IAmTextContainer}>I am</div>
+        <div className={classes.iAmTextContainer}>I am</div>
       </Grid>
       <Grid item xs={6}>
         <div className={classes.buttonContainer}>
@@ -29,7 +29,7 @@ const Home = ({ classes }) => (
 
 Home.propTypes = {
   classes: PropTypes.shape({
-    IAmTextContainer: PropTypes.string.isRequired,
+    iAmTextContainer: PropTypes.string.isRequired,
     buttonContainer: PropTypes.string.isRequired,
     button: PropTypes.string.isRequired,
   }).isRequired,
