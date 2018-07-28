@@ -106,7 +106,7 @@ contract DQuiz {
 
     uint8 currentQuestionIndex = quizList[key].currentQuestionIndex;
 
-    require(quizList[key].questionAnswerList[currentQuestionIndex - 1].answerKey == 0); // -> This is to see if host don't reveal answer twice 
+    require(quizList[key].questionAnswerList[currentQuestionIndex - 1].answerKey == 0); // -> This is to see host don't reveal answer twice 
 
     quizList[key].questionAnswerList[currentQuestionIndex - 1].answerKey = answerKey;
   }
