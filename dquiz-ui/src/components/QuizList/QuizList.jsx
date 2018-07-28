@@ -22,6 +22,7 @@ import {
 
 import styles from './QuizListStyle';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'react-router-dom/Link';
 
 class QuizTable extends Component {
   constructor() {
@@ -38,12 +39,12 @@ class QuizTable extends Component {
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes, buttonText, quizTitle, quizType } = this.props;
     const { expanded } = this.state;
 
     return (
       <Card>
-        <CardHeader title="Created Quizzes" />
+        <CardHeader title={quizTitle} />
         <CardContent>
           <div>
             <div className={classes.panelContainer}>
@@ -71,8 +72,8 @@ class QuizTable extends Component {
                 <ExpansionPanelDetails>
                   <div>
                     <div>
-                      <FontAwesomeIcon icon={faInfoCircle} /> Description: Lorem ipsum description
-                      of quiz what it is about all those things
+                      <FontAwesomeIcon icon={faInfoCircle} /> Description: Lorem ipsum description of quiz what it is
+                      about all those things
                     </div>
                     <div>
                       <FontAwesomeIcon icon={faClock} /> Start Time: 07/08 02:25 AM
@@ -92,9 +93,11 @@ class QuizTable extends Component {
                   </div>
                 </ExpansionPanelDetails>
               </ExpansionPanel>
-              <Button variant="contained" className={classes.enterButton}>
-                Enter
-              </Button>
+              <Link to={`/host/start/${'quiz-name'}`}>
+                <Button variant="contained" className={classes.enterButton}>
+                  {buttonText}
+                </Button>
+              </Link>
             </div>
             <div className={classes.panelContainer}>
               <ExpansionPanel
@@ -121,8 +124,8 @@ class QuizTable extends Component {
                 <ExpansionPanelDetails>
                   <div>
                     <div>
-                      <FontAwesomeIcon icon={faInfoCircle} /> Description: Lorem ipsum description
-                      of quiz what it is about all those things
+                      <FontAwesomeIcon icon={faInfoCircle} /> Description: Lorem ipsum description of quiz what it is
+                      about all those things
                     </div>
                     <div>
                       <FontAwesomeIcon icon={faClock} /> Start Time: 07/08 02:25 AM
@@ -143,7 +146,7 @@ class QuizTable extends Component {
                 </ExpansionPanelDetails>
               </ExpansionPanel>
               <Button variant="contained" className={classes.enterButton}>
-                Enter
+                {buttonText}
               </Button>
             </div>
             <div className={classes.panelContainer}>
@@ -171,8 +174,8 @@ class QuizTable extends Component {
                 <ExpansionPanelDetails>
                   <div>
                     <div>
-                      <FontAwesomeIcon icon={faInfoCircle} /> Description: Lorem ipsum description
-                      of quiz what it is about all those things
+                      <FontAwesomeIcon icon={faInfoCircle} /> Description: Lorem ipsum description of quiz what it is
+                      about all those things
                     </div>
                     <div>
                       <FontAwesomeIcon icon={faClock} /> Start Time: 07/08 02:25 AM
@@ -193,7 +196,7 @@ class QuizTable extends Component {
                 </ExpansionPanelDetails>
               </ExpansionPanel>
               <Button variant="contained" className={classes.enterButton}>
-                Enter
+                {buttonText}
               </Button>
             </div>
           </div>
@@ -210,6 +213,9 @@ QuizTable.propTypes = {
     panelContainer: PropTypes.string.isRequired,
     enterButton: PropTypes.string.isRequired,
   }).isRequired,
+  buttonText: PropTypes.string.isRequired,
+  quizTitle: PropTypes.string.isRequired,
+  quizType: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(QuizTable);

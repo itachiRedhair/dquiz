@@ -8,8 +8,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 import styles from './BackButtonStyle';
 
-const BackButton = ({ classes }) => (
-  <Link to="/">
+const BackButton = ({ classes, backRoute }) => (
+  <Link to={backRoute}>
     <Button variant="fab" className={classes.backButton}>
       <FontAwesomeIcon icon={faLongArrowAltLeft} />
     </Button>
@@ -20,6 +20,7 @@ BackButton.propTypes = {
   classes: PropTypes.shape({
     backButton: PropTypes.string.isRequired,
   }).isRequired,
+  backRoute: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(BackButton);
