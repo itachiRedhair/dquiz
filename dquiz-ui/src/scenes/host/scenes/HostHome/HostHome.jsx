@@ -10,7 +10,7 @@ import quizConstants from '../../../../config/quiz';
 import BackButton from '../../../../components/BackButton';
 import QuizList from '../../../../components/QuizList';
 import styles from './HostHomeStyle';
-import CreateQuizDialog from '../../components/CreateQuizDialog/CreateQuizDialog';
+import CreateQuizDialog from '../../components/CreateQuizDialog';
 
 class HostHome extends Component {
   constructor() {

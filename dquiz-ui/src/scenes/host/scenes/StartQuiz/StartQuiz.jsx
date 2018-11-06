@@ -5,6 +5,7 @@ import { Grid, Card, CardContent } from '@material-ui/core';
 
 // Custom Components
 import QuizDropZone from '../../components/QuizDropZone';
+import QuestionList from '../../components/QuestionList';
 import BackButton from '../../../../components/BackButton';
 
 import styles from './StartQuizStyle';
@@ -13,11 +14,6 @@ import HostQuizControls from '../../components/HostQuizControls';
 
 /* eslint-disable react/prefer-stateless-function */
 class StartQuiz extends Component {
-  //   static getDerivedStateFromProps(nextProps, prevState) {
-  //     console.log(nextProps);
-  //     return null;
-  //   }
-
   render() {
     const { classes } = this.props;
     return (
@@ -33,11 +29,11 @@ class StartQuiz extends Component {
                 <CardContent>
                   <div>Quiz Name: Sample Quiz Name</div>
                   <div>Quiz Description: Sample Quiz Description</div>
-                  <div>
-                    <QuizDropZone />
-                  </div>
                 </CardContent>
               </Card>
+              {/* FIXME: condition render here dropzone or list of questions */}
+              {/* <QuizDropZone /> */}
+              <QuestionList />
             </Grid>
             <Grid item xs={4}>
               <div className={classes.countDownTimer}>
@@ -58,7 +54,6 @@ StartQuiz.propTypes = {
   classes: PropTypes.shape({
     backButtonContainer: PropTypes.string.isRequired,
     contentContainer: PropTypes.string.isRequired,
-    quizDropZone: PropTypes.string.isRequired,
     countDownTimer: PropTypes.string.isRequired,
     controllerContainer: PropTypes.string.isRequired,
   }).isRequired,
